@@ -97,7 +97,7 @@ let hdrTexture = null;
 let uvTestTexture = new THREE.TextureLoader().load('https://threejs.org/examples/textures/uv_grid_opengl.jpg');
 
 new RGBELoader()
-  .setPath('./textures/')
+  .setPath('https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/2k/')
   .load('studio_small_03_2k.hdr', function (texture) {
     texture.mapping = THREE.EquirectangularReflectionMapping;
     hdrTexture = texture;
