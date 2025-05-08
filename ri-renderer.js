@@ -96,13 +96,14 @@ gui.add(params, 'sphereHeightSegments', 8, 128).step(4).onChange(updateMesh);
 let hdrTexture = null;
 let uvTestTexture = new THREE.TextureLoader().load('https://threejs.org/examples/textures/uv_grid_opengl.jpg');
 
-new RGBELoader()
-  .setPath('./textures/')
+// Update the path and filename to Polyhaven's HDRI
+new THREE.RGBELoader()
+  .setPath('https://polyhaven.com/a/studio_small_03/')
   .load('studio_small_03_2k.hdr', function (texture) {
-    texture.mapping = THREE.EquirectangularReflectionMapping;
-    hdrTexture = texture;
-    scene.environment = hdrTexture;
-    updateMesh();
+    texture.mapping = THREE.EquirectangularReflectionMapping;  // Correct mapping for environment
+    hdrTexture = texture;  // Store the loaded texture
+    scene.environment = hdrTexture;  // Apply as the environment map
+    updateMesh();  // Update the mesh or other elements (if needed)
   });
 
 function createCappedCylinderMesh(radius, height, topSquash, bottomSquash) {
