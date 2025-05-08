@@ -1,0 +1,47 @@
+#threejs-container {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+
+#threejs-container canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+}
+
+.ui-overlay {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 10;
+}
+
+#info-box {
+  width: clamp(10vw, 15vw, 30vw);
+  height: auto;
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  background: rgba(255, 255, 255, 0.5);
+  color: rgb(41, 24, 24);
+  padding: 10px 15px;
+  border-radius: 0px 20px;
+  pointer-events: auto;
+  z-index: 1;
+}
+
+#info-box h2 {
+  font-size: 1.5em;
+  font-family: 'Playfair', sans-serif;
+}
+
+#info-box p {
+  font-size: 1em;
+  font-family: 'Inter', sans-serif;
+}
+
