@@ -19,9 +19,12 @@ const shapeMeshParamSchemas = {
     sphereHeightSegments: { min: 2, max: 64, step: 1 }
   },
   'capped octagon': {
-    sideLength: { min: 0.1, max: 10, step: 0.1 },
+    radius: { min: 1, max: 20, step: 0.1 },
     height: { min: 1, max: 50, step: 0.1 },
-    bevelSize: { min: 0, max: 1, step: 0.05 }
+    topSquash: { min: 0, max: 1, step: 0.01 },
+    bottomSquash: { min: 0, max: 1, step: 0.01 },
+    sphereWidthSegments: { min: 3, max: 128, step: 1 },
+    sphereHeightSegments: { min: 2, max: 64, step: 1 }
   },
   'capped square': {
     width: { min: 1, max: 20, step: 0.1 },
@@ -43,9 +46,12 @@ function getMeshParams(shape) {
       sphereHeightSegments: 32
     },
     'capped octagon': {
-      sideLength: 3,
+      radius: 5,
       height: 10,
-      bevelSize: 0.2
+      topSquash: 0.5,
+      bottomSquash: 1,
+      sphereWidthSegments: 32,
+      sphereHeightSegments: 16
     },
     'capped square': {
       width: 5,
@@ -122,15 +128,50 @@ function createCappedCylinder(mesh_params) {
 }
 
 function createCappedOctagon(mesh_params) {
-  const shape = new THREE.CylinderGeometry(
-    mesh_params.sideLength,
-    mesh_params.height,
-    mesh_params.bevelSize,
-    8, // 8 segments for octagon shape
+  const radius = mesh_params.radius;
+  const height = mesh_params.height;
+
+  // 8-sided faceted cylinder (approximates octagon prism)
+  const body = new THREE.CylinderGeometry(
+    radius,
+    radius,
+    height,
+    8, // 8 segments = octagon
     1,
     true
   );
-  return [new Brush(shape)];
+
+  // Top cap
+  const top = new THREE.SphereGeometry(
+    radius,
+    mesh_params.sphereWidthSegments,
+    mesh_params.sphereHeightSegments,
+    0,
+    Math.PI * 2,
+    0,
+    Math.PI / 2
+  );
+  top.scale(1, mesh_params.topSquash, 1);
+  top.translate(0, height / 2, 0);
+
+  // Bottom cap
+  const bottom = new THREE.SphereGeometry(
+    radius,
+    mesh_params.sphereWidthSegments,
+    mesh_params.sphereHeightSegments,
+    0,
+    Math.PI * 2,
+    Math.PI / 2,
+    Math.PI
+  );
+  bottom.scale(1, mesh_params.bottomSquash, 1);
+  bottom.translate(0, -height / 2, 0);
+
+  return [
+    new Brush(body),
+    new Brush(top),
+    new Brush(bottom)
+  ];
 }
 
 function createCappedSquare(mesh_params) {

@@ -1,6 +1,7 @@
 import { THREE, GLTFLoader } from './globals.js';
 import { scene, camera, renderer, params, controls, light} from './setup.js';
 import { createMesh, initHDRI, brushesArray, getShapeBrushes, meshParamsByShape } from './mesh-utils.js';
+import { cameraConstrain } from './camera-utils.js';
 
 let mesh = null;
 
@@ -18,29 +19,7 @@ function updateMesh() {
 
   window.mesh = mesh; 
 
-  /*/ Set bounding box and sphere because it is a cyclinder
-  const scale = params.meshScale;
-  const bbox = mesh.geometry.boundingBox;
-  const sphere = mesh.geometry.boundingSphere;
-
-  // calculate the center for the box
-  const center = bbox.getCenter(new THREE.Vector3()).multiplyScalar(scale);
-  const radius = sphere.radius * scale;
-
-  // Position camera at mesh center
-  camera.position.copy(center);
-  const lookDir = new THREE.Vector3(0, 0, 1)
-  controls.target.copy(center.clone().add(lookDir));
-  controls.update();
-
-  // Paramaters to restrict camera zoomin and other controls
-  controls.minDistance = 0.01;
-  controls.maxDistance = radius * 0.45;
-  controls.enableZoom = true;
-  controls.enablePan = false;
-  controls.maxPolarAngle = Math.PI - 0.1;
-  controls.minPolarAngle = 0.1;*/
-
+  cameraConstrain(mesh); // Camera Constrainta
   if (light) {
     light.intensity = params.lightIntensity;
     light.position.set(params.lightXPos, params.lightYPos, params.lightZPos);
