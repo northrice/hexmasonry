@@ -1,5 +1,6 @@
 import { updateMesh } from './build.js'
-import { updateCamera } from './build.js';
+import { updateCamera } from './camera-utils.js';
+import { shapeOptions, meshParamsByShape, shapeMeshParamSchemas} from './mesh-utils.js';
 
 const params = {
 
@@ -8,26 +9,18 @@ const params = {
   modelPosZ: 0,
   modelScale: 1,
   cameraY: 0,
-  distance: 30,
+  distance: 0,
   azimuth: 45,
   phi: 60,
   useUVTest: false,
+  meshScale: 1,
 
   lightIntensity: 1,
   lightXPos: 1,
   lightYPos: 1,
-  lightZPos: 1
-};
+  lightZPos: 1,
 
-const mesh_params = {
-  meshScale: 1,
-  radialSegments: 64,
-  sphereWidthSegments: 64,
-  sphereHeightSegments: 32,
-  radius: 5,
-  height: 10,
-  topSquash: 0.5,
-  bottomSquash: 1
+  shapeType: 'capped cylinder',
 };
 
 const scene = new THREE.Scene();
@@ -108,13 +101,44 @@ gui.add(params, 'lightXPos', -10, 10).onChange(updateMesh);
 gui.add(params, 'lightYPos', -10, 10).onChange(updateMesh);
 gui.add(params, 'lightZPos', -10, 10).onChange(updateMesh);
 
-gui.add(mesh_params, 'height', 1, 30).step(0.5).onChange(updateMesh);
-gui.add(mesh_params, 'topSquash', 0.01, 1).step(0.01).onChange(updateMesh);
-gui.add(mesh_params, 'bottomSquash', 0.01, 1).step(0.01).onChange(updateMesh);
-gui.add(mesh_params, 'radialSegments', 8, 254).step(8).onChange(updateMesh);
-gui.add(mesh_params, 'meshScale', 0.01, 10).step(0.01).onChange(updateMesh);
-gui.add(mesh_params, 'sphereWidthSegments', 8, 254).step(8).onChange(updateMesh);
-gui.add(mesh_params, 'sphereHeightSegments', 8, 128).step(4).onChange(updateMesh);
+//// SHAPE CHOOSER
+let meshParamFolder = null;
+rebuildMeshParamsGUI(params.shapeType);
+
+gui.add(params, 'shapeType', shapeOptions).onChange(shape => {
+  rebuildMeshParamsGUI(shape); // Update the param sliders for this shape
+  updateMesh();                // Regenerate the mesh itself
+});
+
+
+// GUI SCHEMA
+function rebuildMeshParamsGUI(currentShape) {
+  // ✅ Correct way to remove the previous folder
+  if (meshParamFolder) {
+    meshParamFolder.destroy(); // ✅ Properly remove the GUI folder
+    meshParamFolder = null;
+  }
+
+  // Create a new one
+  meshParamFolder = gui.addFolder('Mesh Parameters');
+
+  const paramSchema = shapeMeshParamSchemas[currentShape];
+  const paramObject = meshParamsByShape[currentShape];
+
+  console.log('paramSchema:', paramSchema);
+  console.log('paramObject:', paramObject);
+
+  for (const key in paramSchema) {
+    const { min, max, step } = paramSchema[key];
+    meshParamFolder
+      .add(paramObject, key, min, max, step)
+      .onChange(updateMesh);
+  }
+
+  meshParamFolder.open();
+}
+
+
 
 // RAYCASTER
 const raycaster = new THREE.Raycaster();
@@ -126,7 +150,7 @@ let clickedPointRef = null;
 
 // Exports
 export {
-  mesh_params,
+  //mesh_params,
   params,
   scene,
   camera,
