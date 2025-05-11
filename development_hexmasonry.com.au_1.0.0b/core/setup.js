@@ -1,5 +1,5 @@
 import { updateMesh } from './build.js'
-import { updateCamera } from './build.js';
+import { updateCamera } from './camera-utils.js';
 import { shapeOptions, meshParamsByShape, shapeMeshParamSchemas} from './mesh-utils.js';
 
 const params = {
@@ -9,7 +9,7 @@ const params = {
   modelPosZ: 0,
   modelScale: 1,
   cameraY: 0,
-  distance: 30,
+  distance: 0,
   azimuth: 45,
   phi: 60,
   useUVTest: false,

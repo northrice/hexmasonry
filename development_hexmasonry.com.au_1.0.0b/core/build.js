@@ -1,7 +1,6 @@
 import { THREE, GLTFLoader } from './globals.js';
 import { scene, camera, renderer, params, controls, light} from './setup.js';
 import { createMesh, initHDRI, brushesArray, getShapeBrushes, meshParamsByShape } from './mesh-utils.js';
-import { cameraConstrain } from './camera-utils.js';
 
 let mesh = null;
 
@@ -19,11 +18,16 @@ function updateMesh() {
 
   window.mesh = mesh; 
 
-  cameraConstrain(mesh); // Camera Constrainta
   if (light) {
     light.intensity = params.lightIntensity;
     light.position.set(params.lightXPos, params.lightYPos, params.lightZPos);
   }
+
+  const boxHelper = new THREE.BoxHelper(mesh, 0xff00ff); // Magenta box
+  scene.add(boxHelper);
+  window.boxHelper = boxHelper; // Optional: for console debugging
+
+  return mesh;
 }
 
 // HDRI init
@@ -53,17 +57,4 @@ window.addEventListener('resize', () => {
   renderer.setSize(window.innerWidth, window.innerHeight);
 });
 
-function updateCamera() {
-  const azimuthRad = THREE.MathUtils.degToRad(params.azimuth);
-  const phiRad = THREE.MathUtils.degToRad(params.phi);
-
-  const x = params.distance * Math.sin(phiRad) * Math.cos(azimuthRad);
-  const y = params.distance * Math.cos(phiRad);
-  const z = params.distance * Math.sin(phiRad) * Math.sin(azimuthRad);
-
-  camera.position.set(x, y + params.cameraY, z);
-  controls.target.set(0, params.cameraY, 0);
-  controls.update();
-}
-
-export { updateMesh, updateCamera};
+export { updateMesh, mesh};

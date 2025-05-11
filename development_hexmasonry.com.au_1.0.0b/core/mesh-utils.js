@@ -6,7 +6,7 @@ const uvTestTexture = new THREE.TextureLoader().load('https://threejs.org/exampl
 let brushesArray = [];
 
 // SHAPE SELECTION
-const shapeOptions = ['capped cylinder', 'capped octagon', 'capped square'];
+const shapeOptions = ['capped cylinder', 'capped octagon', 'capped square', 'custom polygon'];
 
 const shapeMeshParamSchemas = {
   'capped cylinder': {
@@ -30,6 +30,20 @@ const shapeMeshParamSchemas = {
     width: { min: 1, max: 20, step: 0.1 },
     height: { min: 1, max: 20, step: 0.1 },
     roundness: { min: 0, max: 1, step: 0.05 }
+  },
+
+  'custom polygon': {
+    height: { min: 1, max: 50, step: 0.1 },
+    topSquash: { min: 0, max: 1, step: 0.01 },
+    bottomSquash: { min: 0, max: 1, step: 0.01 },
+    side0Radius: { min: 1, max: 20, step: 0.1 },
+    side1Radius: { min: 1, max: 20, step: 0.1 },
+    side2Radius: { min: 1, max: 20, step: 0.1 },
+    side3Radius: { min: 1, max: 20, step: 0.1 },
+    side4Radius: { min: 1, max: 20, step: 0.1 },
+    side5Radius: { min: 1, max: 20, step: 0.1 },
+    side6Radius: { min: 1, max: 20, step: 0.1 },
+    side7Radius: { min: 1, max: 20, step: 0.1 }
   }
 };
 
@@ -57,6 +71,20 @@ function getMeshParams(shape) {
       width: 5,
       height: 10,
       roundness: 0.2
+    },
+    'custom polygon': { //8 sides
+      radius: 5,
+      height: 10,
+      topSquash: 0.5,
+      bottomSquash: 1,
+      side0Radius: 5,
+      side1Radius: 5,
+      side2Radius: 5,
+      side3Radius: 5,
+      side4Radius: 5,
+      side5Radius: 5,
+      side6Radius: 5,
+      side7Radius: 5
     }
   };
 
@@ -65,7 +93,8 @@ function getMeshParams(shape) {
 const meshParamsByShape = {
   'capped cylinder': getMeshParams('capped cylinder'),
   'capped octagon': getMeshParams('capped octagon'),
-  'capped square': getMeshParams('capped square')
+  'capped square': getMeshParams('capped square'),
+  'custom polygon': getMeshParams('custom polygon')
 };
 
 function getShapeBrushes(params, mesh_params) {
@@ -76,6 +105,8 @@ function getShapeBrushes(params, mesh_params) {
       return createCappedOctagon(mesh_params);
     case 'capped square':
       return createCappedSquare(mesh_params);
+    case 'custom polygon':
+      return createCappedCustomPolygon(mesh_params);
     default:
       console.warn('Unknown shape type:', params.shapeType);
       return [];
@@ -186,6 +217,71 @@ function createCappedSquare(mesh_params) {
   return [new Brush(shape)];
 }
 
+function createCappedCustomPolygon(mesh_params) {
+  const height = mesh_params.height;
+  const shape = new THREE.Shape();
+
+  const segments = 8;
+  const angleStep = (Math.PI * 2) / segments;
+
+  // Collect all corner radii (side0Radius ... side7Radius)
+  const radii = [];
+  for (let i = 0; i < segments; i++) {
+    radii.push(mesh_params[`side${i}Radius`] || mesh_params.radius);
+  }
+
+  for (let i = 0; i < segments; i++) {
+    const angle = i * angleStep;
+    const r = radii[i];
+    const x = Math.cos(angle) * r;
+    const y = Math.sin(angle) * r;
+    if (i === 0) shape.moveTo(x, y);
+    else shape.lineTo(x, y);
+  }
+  shape.closePath();
+
+  // Extrude prism
+  const extrudeSettings = {
+    depth: height,
+    bevelEnabled: false
+  };
+  const geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
+  geometry.translate(0, -height / 2, 0); // center vertically
+
+  // Top cap
+  const top = new THREE.SphereGeometry(
+    mesh_params.radius,
+    mesh_params.sphereWidthSegments,
+    mesh_params.sphereHeightSegments,
+    0,
+    Math.PI * 2,
+    0,
+    Math.PI / 2
+  );
+  top.scale(1, mesh_params.topSquash, 1);
+  top.translate(0, height / 2, 0);
+
+  // Bottom cap
+  const bottom = new THREE.SphereGeometry(
+    mesh_params.radius,
+    mesh_params.sphereWidthSegments,
+    mesh_params.sphereHeightSegments,
+    0,
+    Math.PI * 2,
+    Math.PI / 2,
+    Math.PI
+  );
+  bottom.scale(1, mesh_params.bottomSquash, 1);
+  bottom.translate(0, -height / 2, 0);
+
+  return [
+    new Brush(geometry),
+    new Brush(top),
+    new Brush(bottom)
+  ];
+}
+
+
 function createMesh(brushesArray, params) {
   const evaluator = new Evaluator();
 
@@ -207,11 +303,25 @@ function createMesh(brushesArray, params) {
   const mesh = new THREE.Mesh(result.geometry, material);
   mesh.scale.setScalar(params.meshScale);
 
-  result.geometry.computeBoundingSphere();
-  mesh.userData.boundingSphere = result.geometry.boundingSphere;
+  // Update matrix so bounding box reflects scale
+  mesh.updateMatrixWorld(true);
+
+  // Compute bounding box in world space
+  const box = new THREE.Box3().setFromObject(mesh);
+  const center = new THREE.Vector3();
+  const size = new THREE.Vector3();
+
+  box.getCenter(center);
+  box.getSize(size);
+
+  mesh.userData.boundingBox = box;
+  mesh.userData.boxCenter = center;
+  mesh.userData.boxSize = size;
 
   return mesh;
+  
 }
+
 
 function applyUVs(geometry) {
   geometry = geometry.toNonIndexed();
@@ -252,4 +362,4 @@ function initHDRI(scene, updateMeshCallback) {
     });
 }
 
-export { createMesh, applyUVs, initHDRI, brushesArray, shapeOptions, getShapeBrushes, getMeshParams, meshParamsByShape, shapeMeshParamSchemas};
+export { createMesh, applyUVs, initHDRI, brushesArray, shapeOptions, getShapeBrushes, getMeshParams, meshParamsByShape, shapeMeshParamSchemas   };
