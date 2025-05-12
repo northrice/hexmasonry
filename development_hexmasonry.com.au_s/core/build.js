@@ -5,6 +5,22 @@ import {
   applyEnvironmentLighting
 } from './lighting.js';
 
+// Helper: Ensure all geometry-only nodes are wrapped in a Mesh
+function ensureMeshesFromGeometry(object, defaultMaterial = new THREE.MeshStandardMaterial({ color: 0xffffff })) {
+  object.traverse((child, index) => {
+    if (!child.isMesh && child.geometry) {
+      const mesh = new THREE.Mesh(child.geometry, defaultMaterial);
+      mesh.position.copy(child.position);
+      mesh.rotation.copy(child.rotation);
+      mesh.scale.copy(child.scale);
+
+      mesh.name = child.name || `GeneratedMesh_${index}`;
+      child.parent.add(mesh);
+      child.parent.remove(child);
+    }
+  });
+}
+
 // === SUBJECT MODEL ===
 const subjectModelUrl = 'https://floralwhite-wasp-616415.hostingersite.com/serve-model.php';
 const subjectLoader = new GLTFLoader();
@@ -18,11 +34,15 @@ fetch(subjectModelUrl, params)
     model.scale.setScalar(params.modelScale);
     model.position.set(params.modelPosX, params.modelPosY, params.modelPosZ);
 
+    ensureMeshesFromGeometry(model);
+
+    let index = 0;
     model.traverse(obj => {
       if (obj.isMesh && obj.material) {
         obj.castShadow = true;
         obj.receiveShadow = false;
-        obj.layers.set(0); // Main layer (no bloom)
+        obj.layers.set(0);
+        if (!obj.name) obj.name = `AutoMesh_Subject_${index++}`;
       }
     });
 
@@ -47,11 +67,15 @@ envLoader.load(
     env.scale.setScalar(params.envScale);
     env.position.set(params.envPosX, params.envPosY, params.envPosZ);
 
+    ensureMeshesFromGeometry(env);
+
+    let index = 0;
     env.traverse(obj => {
       if (obj.isMesh && obj.material) {
         obj.castShadow = false;
         obj.receiveShadow = true;
-        obj.layers.set(1); // Bloom layer (optional)
+        obj.layers.set(1);
+        if (!obj.name) obj.name = `AutoMesh_Env_${index++}`;
       }
     });
 

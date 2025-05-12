@@ -4,7 +4,7 @@ import { updateCamera } from './camera-utils.js';
 const params = {
   modelPosX: 0,
   modelPosY: 0,
-  modelPosZ: 0,
+  modelPosZ: 3,
   modelScale: 1,
   envScale: 1,
   cameraY: 0,
@@ -34,10 +34,10 @@ document.getElementById('threejs-container').appendChild(renderer.domElement);
 
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
-controls.enablePan = false;
+controls.enablePan = true;
 controls.minDistance = 3;
 controls.maxDistance = 10;
-
+controls.mouseButtons.RIGHT = THREE.MOUSE.PAN;
 // GUI
 const gui = new GUI();
 
@@ -131,13 +131,6 @@ globalFolder.add(params, 'envPosZ', -50, 50).step(0.01).onChange(() => {
   if (window.envModel) window.envModel.position.z = params.envPosZ;
 });
 globalFolder.open();
-// RAYCASTER
-const raycaster = new THREE.Raycaster();
-const mouse = new THREE.Vector2();
-let model = null;
-let connectorLine = null;
-let clickedPoint = null;
-let clickedPointRef = null;
 
 // Exports
 export {

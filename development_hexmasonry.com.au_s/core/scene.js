@@ -17,8 +17,8 @@ const pmremGenerator = new PMREMGenerator(renderer);
 pmremGenerator.compileEquirectangularShader();
 
 new RGBELoader()
-  .setPath('/textures/')
-  .load('studio_small_03_1k.hdr', (hdrEquirect) => {
+  .setPath('scene/textures/')
+  .load('modern_bathroom_4k.hdr', (hdrEquirect) => {
     const envMap = pmremGenerator.fromEquirectangular(hdrEquirect).texture;
     scene.environment = envMap;
     scene.background = new THREE.Color(0xfffff0);
@@ -139,7 +139,6 @@ function updateAperture() {
   const pixelSize = sensorHeight / imageHeight;
   const aperture = (bokehParams.focusDistance * pixelSize) / (bokehParams.fStop * bokehParams.focalLength);
   bokehPass.materialBokeh.uniforms.aperture.value = aperture;
-  console.log(`📸 f/${bokehParams.fStop}, FL: ${bokehParams.focalLength}mm, Aperture: ${aperture.toExponential(4)}`);
 }
 updateAperture();
 
@@ -185,8 +184,6 @@ bokehPass.materialBokeh.uniforms.focus.value = newFocus;
   focusBox.scale.set(width, height, thickness);
 
   const worldDistance = camera.position.distanceTo(controls.target);
-  console.log(`🎯 Focus Distance: ${bokehParams.focusDistance.toFixed(2)}, 📏 World Distance: ${worldDistance.toFixed(2)}, 🔘 Aperture: ${aperture.toExponential(4)}`);
-
   composer.render();
 }
 

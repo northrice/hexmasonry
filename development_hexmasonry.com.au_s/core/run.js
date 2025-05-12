@@ -1,6 +1,6 @@
 // run.js
 import './build.js';
-import { updateCamera } from './camera-utils.js';
+import { updateCamera, initCameraFocusControls } from './camera-utils.js';
 import { camera, renderer, controls } from './setup.js';
 import { renderSceneWithBloom } from './scene.js';
 import { applyGlobalLighting } from './lighting.js';
@@ -12,8 +12,9 @@ window.addEventListener('resize', () => {
   renderer.setSize(window.innerWidth, window.innerHeight);
 });
 
-applyGlobalLighting()
+applyGlobalLighting();
 updateCamera();
+initCameraFocusControls(); // ← 🔥 Add this here
 
 window.updateCamera = updateCamera;
 window.camera = camera;
