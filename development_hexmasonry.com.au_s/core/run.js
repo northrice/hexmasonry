@@ -1,51 +1,44 @@
-import { initViewer } from './build.js';
+import './build.js';
+import { loadModels } from './build.js';
 import { initCameraFocusControls } from './camera-utils.js';
 import { camera, renderer, controls } from './setup.js';
 import { renderSceneWithBloom } from './scene.js';
 import { applyGlobalLighting } from './lighting.js';
-import { saveGUIParamsToFile } from './gui-export.js';
-import configArray from './configs/home.js';
-import { loadModels } from './build.js';
+import { saveGUIParamsToFile } from './gui-export.js'; // EXPORT GUI PARAMS
 
-
-const container = document.getElementById('viewer-container');
-initViewer(container, configArray);
-
-// Parse query param from <script src="run.js?config=home.js"> (optional)
+// Parse the query from the current script tag, not the page URL
 const scriptUrl = new URL(import.meta.url);
 const configName = scriptUrl.searchParams.get('config');
 
+// KEYBIND TO EXPORT GUI PARAMS
+window.addEventListener('keydown', (e) => {
+  if (e.key === 'p') {
+    saveGUIParamsToFile(); // Exports current GUI state to gui-params.json
+  }
+});
+
 if (!configName) {
-  console.log('ℹ️ No dynamic config specified, using default home.js');
+  console.error('❌ No config specified in script src (e.g. run.js?config=home.js)');
 } else {
-  console.warn('⚠️ Dynamic config loading from URL is deprecated in favor of direct import.');
-  // Optionally remove the whole block if you're sticking with JS configs only
   import(`./configs/${configName}`)
     .then(module => {
-      initViewer(container, module.default);
+      loadModels(module.default);
     })
     .catch(err => console.error(`❌ Failed to load config "${configName}":`, err));
 }
 
-// Keyboard shortcut to save GUI
-window.addEventListener('keydown', (e) => {
-  if (e.key === 'p') {
-    saveGUIParamsToFile();
-  }
-});
-
-// Responsive resize
+// Resize + controls
 window.addEventListener('resize', () => {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
 });
 
-// Init camera & lighting
+// Lighting & camera init
 applyGlobalLighting();
 initCameraFocusControls();
 
-// Debugging
+// Debug / Dev globals
 window.camera = camera;
 
 // Animation loop
@@ -54,6 +47,7 @@ function animate() {
   controls.update();
   renderSceneWithBloom();
 }
+
 animate();
 
 // USE <script type="module" src="https://northrice.github.io/hexmasonry/development_hexmasonry.com.au_merged/core/run.js?config=home"></script>

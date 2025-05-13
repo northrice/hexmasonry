@@ -1,10 +1,12 @@
-import { THREE, GLTFLoader, OrbitControls } from './globals.js';
+// build.js – Loads and configures 3D models from config, assigning each to a unique layer with custom settings.
+
+import { THREE, GLTFLoader } from './globals.js';
+import { scene, camera, renderer } from './setup.js';
 import {
   applyLightingToSubject,
   applyEnvironmentLighting,
   createLight
 } from './lighting.js';
-import { scene, camera, renderer, controls } from './setup.js';
 
 // Helper: Ensure all geometry-only nodes are wrapped in a Mesh
 function ensureMeshesFromGeometry(object, defaultMaterial = new THREE.MeshStandardMaterial({ color: 0xffffff })) {
@@ -14,6 +16,7 @@ function ensureMeshesFromGeometry(object, defaultMaterial = new THREE.MeshStanda
       mesh.position.copy(child.position);
       mesh.rotation.copy(child.rotation);
       mesh.scale.copy(child.scale);
+
       mesh.name = child.name || `GeneratedMesh_${object.name || 'Model'}_${index}`;
       child.parent.add(mesh);
       child.parent.remove(child);
@@ -21,8 +24,13 @@ function ensureMeshesFromGeometry(object, defaultMaterial = new THREE.MeshStanda
   });
 }
 
-function loadModelsIntoScene(configArray, scene, layerCallback) {
+export function loadModels(configArray) {
   const loader = new GLTFLoader();
+
+  // Detect total models and names
+  const totalModels = configArray.length;
+  const modelNames = configArray.map(cfg => cfg.name || 'Unnamed');
+  console.log(`✨ Preparing to load ${totalModels} model(s): ${modelNames.join(', ')}`);
 
   configArray.forEach((config, layerIndex) => {
     const loadMethod = config.sourceType === 'fetch' ? loadViaFetch : loadViaDirect;
@@ -32,10 +40,13 @@ function loadModelsIntoScene(configArray, scene, layerCallback) {
         const model = gltf.scene;
         model.name = config.name || `Model_${layerIndex}`;
         model.scale.setScalar(config.scale);
-        model.position.set(config.position.x, config.position.y, config.position.z);
+        model.position.set(
+          config.position.x,
+          config.position.y,
+          config.position.z
+        );
 
         ensureMeshesFromGeometry(model);
-
         let index = 0;
         model.traverse(obj => {
           if (obj.isMesh && obj.material) {
@@ -47,6 +58,7 @@ function loadModelsIntoScene(configArray, scene, layerCallback) {
         });
 
         scene.add(model);
+        
 
         if (config.type === 'subject') applyLightingToSubject(model);
         if (config.type === 'environment') applyEnvironmentLighting();
@@ -56,8 +68,6 @@ function loadModelsIntoScene(configArray, scene, layerCallback) {
         }
 
         if (config.exposeGlobalName) window[config.exposeGlobalName] = model;
-
-        if (layerCallback) layerCallback(model, layerIndex);
       })
       .catch(err => console.error(`❌ Error loading model on layer ${layerIndex}`, err));
   });
@@ -75,62 +85,9 @@ function loadViaDirect(loader, config) {
   });
 }
 
-export async function initViewer(containerElement, configOrArray) {
-  if (!containerElement) throw new Error("Container element is required");
-
-  let config;
-
-  if (typeof configOrArray === 'string') {
-    const response = await fetch(configOrArray);
-    config = await response.json();
-  } else {
-    config = { models: configOrArray }; // Wrap array in object
-  }
-
-  const scene = new THREE.Scene();
-  scene.background = new THREE.Color(0xf8f8f8);
-
-  const camera = new THREE.PerspectiveCamera(45, containerElement.clientWidth / containerElement.clientHeight, 0.1, 1000);
-  camera.position.set(0, 1, 2);
-  camera.layers.enableAll();
-
-  const renderer = new THREE.WebGLRenderer({ antialias: true });
-  renderer.setSize(containerElement.clientWidth, containerElement.clientHeight);
-  renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1;
-  renderer.outputEncoding = THREE.sRGBEncoding;
-  renderer.shadowMap.enabled = true;
-  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-
-  containerElement.appendChild(renderer.domElement);
-
-  const controls = new OrbitControls(camera, renderer.domElement);
-  controls.enableDamping = true;
-  controls.enablePan = true;
-  controls.minDistance = 1;
-  controls.maxDistance = 1000;
-  controls.mouseButtons.RIGHT = THREE.MOUSE.PAN;
-
-  // Load models
-  loadModelsIntoScene(config.models || [], scene);
-
-  // Animate/render loop
-  function animate() {
-    requestAnimationFrame(animate);
-    controls.update();
-    renderer.render(scene, camera);
-  }
-  animate();
-
-  // Resize handling
-  const resizeObserver = new ResizeObserver(() => {
-    camera.aspect = containerElement.clientWidth / containerElement.clientHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(containerElement.clientWidth, containerElement.clientHeight);
-  });
-  resizeObserver.observe(containerElement);
-
-  return { scene, camera, renderer, controls };
-}
-
-export { loadModelsIntoScene as loadModels };
+// RESIZE HANDLING
+window.addEventListener('resize', () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});

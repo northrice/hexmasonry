@@ -1,35 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Hexmasonry Demo</title>
   <link rel="stylesheet" href="styles.css">
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Inter&display=swap" rel="stylesheet">
-  <style>
-    /* Ensure the viewer container takes up the full screen */
-    html,
-    body {
-      margin: 0;
-      padding: 0;
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-    }
 
-    #viewer-container {
-      width: 100%;
-      height: 100%;
-    }
-  </style>
 </head>
-
 <body>
 
-  <!-- Updated container ID -->
-  <div id="viewer-container">
+  <div id="threejs-container" height="100vh">
     <div class="ui-overlay">
       <div class="info-box" id="info-box">
         <h2>Object Info</h2>
@@ -38,8 +20,7 @@
     </div>
   </div>
 
-  <script type="module" src="/core/run.js?config=home.js"></script>
-
+<script type="module" src="/core/run.js?config=home.js"></script>
+  
 </body>
-
 </html>
