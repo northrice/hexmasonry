@@ -31,7 +31,7 @@ document.getElementById('threejs-container').appendChild(renderer.domElement);
 // CAMERA
 const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
 //camera.layers.enable(1);
-camera.position.set(15, 20, 10);
+camera.position.set(10, 15, 10);
 camera.layers.enableAll()
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.target.set(0, 0, 0);
