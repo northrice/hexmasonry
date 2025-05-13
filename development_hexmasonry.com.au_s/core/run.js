@@ -33,14 +33,25 @@ window.addEventListener('keydown', (e) => {
   }
 });
 
+const loadingScreen = document.getElementById('loading-screen');
+
 if (!configName) {
   console.error('❌ No config specified in script src (e.g. run.js?config=home.js)');
+  if (loadingScreen) loadingScreen.style.display = 'none';
 } else {
+  if (loadingScreen) loadingScreen.style.display = 'flex'; // Show loading screen
+
   import(`./configs/${configName}`)
     .then(module => {
-      loadModels(module.default);
+      return loadModels(module.default); // Returns a Promise
     })
-    .catch(err => console.error(`❌ Failed to load config "${configName}":`, err));
+    .then(() => {
+      if (loadingScreen) loadingScreen.style.display = 'none'; // Hide when done
+    })
+    .catch(err => {
+      console.error(`❌ Failed to load config "${configName}":`, err);
+      if (loadingScreen) loadingScreen.style.display = 'none'; // Hide on error
+    });
 }
 
 // Resize + controls
