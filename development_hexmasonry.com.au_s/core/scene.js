@@ -13,6 +13,8 @@ import { BokehPass } from 'https://esm.sh/three@0.155.0/examples/jsm/postprocess
 import { ShaderPass } from 'https://esm.sh/three@0.155.0/examples/jsm/postprocessing/ShaderPass.js';
 import { scene, camera, renderer, gui } from './setup.js';
 
+let enablePostProcessing = false;
+
 const pmremGenerator = new PMREMGenerator(renderer);
 pmremGenerator.compileEquirectangularShader();
 
@@ -75,7 +77,7 @@ const bokehParams = {
 
 const bokehPass = new BokehPass(scene, camera, {
   focus: bokehParams.focusDistance,
-  aperture: 0.00025, // temp override, will be updated dynamically
+  aperture: 0.00025,
   maxblur: 0.1
 });
 composer.addPass(bokehPass);
@@ -89,7 +91,7 @@ const focusBoxMaterial = new THREE.MeshBasicMaterial({
   depthWrite: false
 });
 const focusBox = new THREE.Mesh(focusBoxGeometry, focusBoxMaterial);
-focusBox.visible = true;
+focusBox.visible = false;
 scene.add(focusBox);
 
 const vignetteShader = {
@@ -120,21 +122,37 @@ const vignetteShader = {
 const vignettePass = new ShaderPass(vignetteShader);
 composer.addPass(vignettePass);
 
+gui.add({ enablePostProcessing }, 'enablePostProcessing').name('Enable Post Processing').onChange(val => {
+  enablePostProcessing = val;
+  focusBox.visible = val;
+  if (val) {
+    bloomFolder.show();
+    bokehFolder.show();
+    vignetteFolder.show();
+    grainFolder.show();
+  } else {
+    bloomFolder.hide();
+    bokehFolder.hide();
+    vignetteFolder.hide();
+    grainFolder.hide();
+  }
+});
+
 const bloomFolder = gui.addFolder('Bloom');
 bloomFolder.add(bloomParams, 'strength', 0, 5).step(0.01).onChange(val => bloomPass.strength = val);
 bloomFolder.add(bloomParams, 'radius', 0, 1).step(0.01).onChange(val => bloomPass.radius = val);
 bloomFolder.add(bloomParams, 'threshold', 0, 1).step(0.01).onChange(val => bloomPass.threshold = val);
-bloomFolder.open();
+bloomFolder.hide();
 
 const bokehFolder = gui.addFolder('Depth of Field');
 bokehFolder.add(bokehParams, 'fStop', 0.8, 22.0).name('F-Stop').onChange(updateAperture);
 bokehFolder.add(bokehParams, 'focalLength', 10, 85).name('Focal Length (mm)').onChange(updateAperture);
-bokehFolder.add({ showFocusBox: true }, 'showFocusBox').name('Show Focus Box').onChange(val => focusBox.visible = val);
+bokehFolder.add({ showFocusBox: false }, 'showFocusBox').name('Show Focus Box').onChange(val => focusBox.visible = val && enablePostProcessing);
 bokehFolder.add(bokehPass.materialBokeh.uniforms.maxblur, 'value', 0.001, 0.2).name('Max Blur');
-bokehFolder.open();
+bokehFolder.hide();
 
 function updateAperture() {
-  const sensorHeight = 24; // mm
+  const sensorHeight = 24;
   const imageHeight = window.innerHeight;
   const pixelSize = sensorHeight / imageHeight;
   const aperture = (bokehParams.focusDistance * pixelSize) / (bokehParams.fStop * bokehParams.focalLength);
@@ -145,11 +163,11 @@ updateAperture();
 const vignetteFolder = gui.addFolder('Vignette');
 vignetteFolder.add(vignetteShader.uniforms.offset, 'value', 0.5, 2.0).name('Offset');
 vignetteFolder.add(vignetteShader.uniforms.darkness, 'value', 0.5, 3.0).name('Darkness');
-vignetteFolder.open();
+vignetteFolder.hide();
 
 const grainFolder = gui.addFolder('Static Grain');
 grainFolder.add(staticGrainShader.uniforms.grainAmount, 'value', 0.0, 0.1).name('Grain Amount');
-grainFolder.open();
+grainFolder.hide();
 
 window.addEventListener('resize', () => {
   const size = new THREE.Vector2(window.innerWidth, window.innerHeight);
@@ -163,13 +181,18 @@ window.addEventListener('resize', () => {
 });
 
 export function renderSceneWithBloom() {
+  if (!enablePostProcessing) {
+    renderer.render(scene, camera);
+    return;
+  }
+
   const targetWorldPos = controls.target.clone();
   const targetViewSpace = targetWorldPos.clone().applyMatrix4(camera.matrixWorldInverse);
   const viewZ = -targetViewSpace.z;
 
   const newFocus = camera.position.distanceTo(controls.target);
-bokehParams.focusDistance = newFocus;
-bokehPass.materialBokeh.uniforms.focus.value = newFocus;
+  bokehParams.focusDistance = newFocus;
+  bokehPass.materialBokeh.uniforms.focus.value = newFocus;
 
   const focusWorldPos = camera.position.clone().add(camera.getWorldDirection(new THREE.Vector3()).multiplyScalar(bokehParams.focusDistance));
   focusBox.position.copy(focusWorldPos);
@@ -182,8 +205,6 @@ bokehPass.materialBokeh.uniforms.focus.value = newFocus;
   const width = height * camera.aspect;
 
   focusBox.scale.set(width, height, thickness);
-
-  const worldDistance = camera.position.distanceTo(controls.target);
   composer.render();
 }
 

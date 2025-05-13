@@ -40,7 +40,7 @@ controls.mouseButtons.RIGHT = THREE.MOUSE.PAN;
 
 
 // GUI
-const gui = new GUI();
+const gui = new GUI({closeFolders: true});
 
 // POSITION TOP LEFT
 const guiContainer = gui.domElement;
@@ -130,7 +130,6 @@ globalFolder.add(params, 'envPosZ', -50, 50).step(0.01).onChange(() => {
   if (window.envModel) window.envModel.position.z = params.envPosZ;
 });
 globalFolder.open();
-
 // Exports
 export {
   //mesh_params,
