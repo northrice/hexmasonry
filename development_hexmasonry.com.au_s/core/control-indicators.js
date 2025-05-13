@@ -94,7 +94,7 @@
       requestAnimationFrame(animateMove);
     }
 
-    const scene = document.getElementById('scene');
+    const scene = document.getElementById('threejs-container');
     createDotTrailVector({ container: scene, origin: { x: 0.5035, y: 0.5 }, angle: 45 });
     createDotTrailVector({ container: scene, origin: { x: 0.5, y: 0.5 }, angle: 225 });
     createDotTrailVector({ container: scene, origin: { x: 0.45, y: 0.5 }, angle: 180, distance: 300 });
