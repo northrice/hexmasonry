@@ -33,24 +33,31 @@ window.addEventListener('keydown', (e) => {
   }
 });
 
+// LOADING SCREEN
 const loadingScreen = document.getElementById('loading-screen');
+
+function hideLoadingScreen() {
+  if (loadingScreen) {
+    loadingScreen.classList.remove('visible');
+    // Wait for the transition to finish before hiding completely
+    setTimeout(() => {
+      if (loadingScreen) loadingScreen.style.display = 'none';
+    }, 400); // Match the transition duration (0.4s = 400ms)
+  }
+}
 
 if (!configName) {
   console.error('❌ No config specified in script src (e.g. run.js?config=home.js)');
-  if (loadingScreen) loadingScreen.style.display = 'none';
+  hideLoadingScreen();
 } else {
-  if (loadingScreen) loadingScreen.style.display = 'flex'; // Show loading screen
+  // No need to showLoadingScreen(); it's already visible
 
   import(`./configs/${configName}`)
-    .then(module => {
-      return loadModels(module.default); // Returns a Promise
-    })
-    .then(() => {
-      if (loadingScreen) loadingScreen.style.display = 'none'; // Hide when done
-    })
+    .then(module => loadModels(module.default))
+    .then(() => hideLoadingScreen())
     .catch(err => {
       console.error(`❌ Failed to load config "${configName}":`, err);
-      if (loadingScreen) loadingScreen.style.display = 'none'; // Hide on error
+      hideLoadingScreen();
     });
 }
 

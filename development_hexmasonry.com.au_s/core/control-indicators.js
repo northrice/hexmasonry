@@ -79,7 +79,7 @@ export function initControlIndicators() {
   const gestureSteps = [
     {
       key: 'rotate',
-      label: 'Rotate: Drag with one finger',
+      label: '',
       animation: (animContainer) => {
         // Single dot trail, horizontal
         createDotTrailVector({
@@ -93,7 +93,7 @@ export function initControlIndicators() {
     },
     {
       key: 'zoom',
-      label: 'Zoom: Double tap',
+      label:'',
       animation: (animContainer) => {
         // Two overlapping circles fading in/out
         createDoubleTapAnimation(animContainer);
@@ -101,7 +101,7 @@ export function initControlIndicators() {
     },
     {
       key: 'pinch',
-      label: 'Pinch: Use two fingers',
+      label: '',
       animation: (animContainer) => {
         // Two dots moving away from center
         createDotTrailVector({
@@ -122,7 +122,7 @@ export function initControlIndicators() {
     },
     {
       key: 'pan',
-      label: 'Pan: Drag with two fingers',
+      label: '',
       animation: (animContainer) => {
         // Two parallel lines
         createDotTrailVector({
