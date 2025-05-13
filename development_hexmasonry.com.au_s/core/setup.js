@@ -50,17 +50,6 @@ guiContainer.style.left = '30px';
 guiContainer.style.zIndex = '100';
 document.body.appendChild(guiContainer);
 
-// 🔒 Show GUI only if user is logged in (via .is-logged-in marker)
-function updateGUIVisibility() {
-  const isLoggedIn = !!document.querySelector('.is-logged-in');
-  guiContainer.style.display = isLoggedIn ? 'block' : 'none';
-}
-updateGUIVisibility();
-
-// Optional: observe DOM for changes in case .is-logged-in is injected late
-const observer = new MutationObserver(updateGUIVisibility);
-observer.observe(document.body, { childList: true, subtree: true });
-
 // 🖱️ DRAGGABLE GUI
 let isDragging = false, offsetX = 0, offsetY = 0;
 guiContainer.addEventListener('mousedown', (e) => {

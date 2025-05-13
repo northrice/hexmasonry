@@ -6,6 +6,17 @@ import { renderSceneWithBloom } from './scene.js';
 import { applyGlobalLighting } from './lighting.js';
 import { saveGUIParamsToFile } from './gui-export.js'; // EXPORT GUI PARAMS
 
+// GUI CHECK
+function updateGUIVisibility() {
+  const isLoggedIn = !!document.querySelector('.is-logged-in');
+  guiContainer.style.display = isLoggedIn ? 'block' : 'none';
+}
+updateGUIVisibility();
+
+// Optional: observe DOM for changes in case .is-logged-in is injected late
+const observer = new MutationObserver(updateGUIVisibility);
+observer.observe(document.body, { childList: true, subtree: true });
+
 // Parse the query from the current script tag, not the page URL
 const scriptUrl = new URL(import.meta.url);
 const configName = scriptUrl.searchParams.get('config');
