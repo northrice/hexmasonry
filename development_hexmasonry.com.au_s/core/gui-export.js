@@ -1,5 +1,21 @@
-// gui-export.js
 import { gui } from './setup.js';
+
+// Forcefully collapse all folders recursively, including hidden ones
+export function collapseAllGUIFolders() {
+  function collapse(folder) {
+    // Force close this folder
+    if (folder && typeof folder.close === 'function') {
+      folder.close();
+    }
+
+    // Handle nested folders via undocumented internal structure
+    if (folder && folder._folders) {
+      Object.values(folder._folders).forEach(sub => collapse(sub));
+    }
+  }
+
+  collapse(gui);
+}
 
 // Traverse the GUI hierarchy safely
 export function extractGUIParams() {
@@ -13,7 +29,6 @@ export function extractGUIParams() {
   function traverse(folder, store) {
     if (!folder) return;
 
-    // Extract controllers
     if (Array.isArray(folder.controllers)) {
       folder.controllers.forEach(ctrl => {
         const key = ctrl._name || ctrl.property || 'unnamed';
@@ -25,7 +40,6 @@ export function extractGUIParams() {
       });
     }
 
-    // Recurse into subfolders
     if (folder.folders) {
       Object.entries(folder.folders).forEach(([name, subFolder]) => {
         store[name] = {};
@@ -62,7 +76,6 @@ export function saveGUIParamsToFile(filename = 'gui-params.json') {
     document.body.removeChild(link);
   }
 
-  // Optional: Feedback
   if (typeof alert === 'function') {
     alert('✅ GUI parameters exported.');
   }
