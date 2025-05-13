@@ -34,6 +34,8 @@ const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerH
 camera.position.set(35, 45, 10);
 camera.layers.enableAll()
 const controls = new OrbitControls(camera, renderer.domElement);
+controls.target.set(0, 0, 0);
+controls.update();
 controls.enableDamping = true;
 controls.enablePan = true;
 controls.minDistance = 1;
