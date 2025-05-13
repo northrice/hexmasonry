@@ -30,7 +30,7 @@ const configs = [
   },
   {
     name: 'EnvironmentModel',
-    url: 'scene/models/hexmasonry-mockup-model.glb',
+    url: 'https://northrice.github.io/hexmasonry/scene/models/hexmasonry-mockup-model.glb',
     sourceType: 'direct',
     type: 'environment',
     exposeGlobalName: 'envModel',
@@ -57,7 +57,7 @@ const configs = [
   },
   {
     name: 'TestModel',
-    url: 'scene/models/modern_kitchen.glb',
+    url: 'https://northrice.github.io/hexmasonry/scene/models/modern_kitchen.glb',
     sourceType: 'direct',
     type: 'test',
     exposeGlobalName: 'envtest',
