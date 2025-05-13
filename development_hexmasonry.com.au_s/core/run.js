@@ -8,7 +8,7 @@ import { saveGUIParamsToFile } from './gui-export.js'; // EXPORT GUI PARAMS
 import { initControlIndicators } from './control-indicators.js'; // CONTROL INDICATORS
 
 // CONTROL INDICATORS
-initControlIndicators();
+//initControlIndicators();
 
 // GUI CHECK
 function updateGUIVisibility() {
