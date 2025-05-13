@@ -7,8 +7,7 @@ import { applyGlobalLighting } from './lighting.js';
 import { saveGUIParamsToFile } from './gui-export.js'; // EXPORT GUI PARAMS
 import { initControlIndicators } from './control-indicators.js'; // CONTROL INDICATORS
 
-// CONTROL INDICATORS
-initControlIndicators();
+
 
 // GUI CHECK
 function updateGUIVisibility() {
@@ -42,6 +41,8 @@ function hideLoadingScreen() {
     const onTransitionEnd = () => {
       loadingScreen.style.display = 'none';
       loadingScreen.removeEventListener('transitionend', onTransitionEnd);
+      // CONTROL INDICATORS
+      initControlIndicators();
     };
     loadingScreen.addEventListener('transitionend', onTransitionEnd);
   }
