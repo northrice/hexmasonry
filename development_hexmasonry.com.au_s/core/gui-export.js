@@ -1,35 +1,69 @@
 // gui-export.js
 import { gui } from './setup.js';
 
+// Traverse the GUI hierarchy safely
 export function extractGUIParams() {
+  if (!gui) {
+    console.warn('⚠️ GUI instance not found.');
+    return {};
+  }
+
   const result = {};
 
   function traverse(folder, store) {
-    // Save each controller's value
-    folder.controllers.forEach(ctrl => {
-      const name = ctrl._name || ctrl.property;
-      store[name] = ctrl.getValue();
-    });
+    if (!folder) return;
 
-    // Recursively process subfolders
-    Object.entries(folder.folders).forEach(([subFolderName, subFolder]) => {
-      store[subFolderName] = {};
-      traverse(subFolder, store[subFolderName]);
-    });
+    // Extract controllers
+    if (Array.isArray(folder.controllers)) {
+      folder.controllers.forEach(ctrl => {
+        const key = ctrl._name || ctrl.property || 'unnamed';
+        try {
+          store[key] = ctrl.getValue?.();
+        } catch (err) {
+          console.warn(`⚠️ Failed to read value for ${key}`, err);
+        }
+      });
+    }
+
+    // Recurse into subfolders
+    if (folder.folders) {
+      Object.entries(folder.folders).forEach(([name, subFolder]) => {
+        store[name] = {};
+        traverse(subFolder, store[name]);
+      });
+    }
   }
 
   traverse(gui, result);
   return result;
 }
 
+// Save parameters to downloadable JSON
 export function saveGUIParamsToFile(filename = 'gui-params.json') {
   const data = extractGUIParams();
-  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const json = JSON.stringify(data, null, 2);
 
-  const link = document.createElement('a');
-  link.href = URL.createObjectURL(blob);
-  link.download = filename;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
+  try {
+    const blob = new Blob([json], { type: 'application/json' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    console.log('✅ GUI parameters saved as JSON');
+  } catch (err) {
+    console.warn('⚠️ Blob download failed. Using fallback.', err);
+    const link = document.createElement('a');
+    link.href = 'data:application/json;charset=utf-8,' + encodeURIComponent(json);
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
+  // Optional: Feedback
+  if (typeof alert === 'function') {
+    alert('✅ GUI parameters exported.');
+  }
 }
