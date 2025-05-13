@@ -27,6 +27,11 @@ function ensureMeshesFromGeometry(object, defaultMaterial = new THREE.MeshStanda
 export function loadModels(configArray) {
   const loader = new GLTFLoader();
 
+  // Detect total models and names
+  const totalModels = configArray.length;
+  const modelNames = configArray.map(cfg => cfg.name || 'Unnamed');
+  console.log(`✨ Preparing to load ${totalModels} model(s): ${modelNames.join(', ')}`);
+
   configArray.forEach((config, layerIndex) => {
     const loadMethod = config.sourceType === 'fetch' ? loadViaFetch : loadViaDirect;
 
@@ -42,7 +47,6 @@ export function loadModels(configArray) {
         );
 
         ensureMeshesFromGeometry(model);
-
         let index = 0;
         model.traverse(obj => {
           if (obj.isMesh && obj.material) {
@@ -54,6 +58,7 @@ export function loadModels(configArray) {
         });
 
         scene.add(model);
+        
 
         if (config.type === 'subject') applyLightingToSubject(model);
         if (config.type === 'environment') applyEnvironmentLighting();
