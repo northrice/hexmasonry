@@ -14,7 +14,7 @@ if (!configName) {
 } else {
   import(`./configs/${configName}`)
     .then(module => {
-      loadModels([module.default]);
+      loadModels(module.default);
     })
     .catch(err => console.error(`❌ Failed to load config "${configName}":`, err));
 }

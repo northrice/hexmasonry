@@ -24,7 +24,6 @@ function ensureMeshesFromGeometry(object, defaultMaterial = new THREE.MeshStanda
   });
 }
 
-// LOAD MODELS
 export function loadModels(configArray) {
   const loader = new GLTFLoader();
 
@@ -64,8 +63,6 @@ export function loadModels(configArray) {
         }
 
         if (config.exposeGlobalName) window[config.exposeGlobalName] = model;
-
-        console.log(`✅ ${config.name || 'Model'} loaded on layer ${layerIndex}`);
       })
       .catch(err => console.error(`❌ Error loading model on layer ${layerIndex}`, err));
   });
