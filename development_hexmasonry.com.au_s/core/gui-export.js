@@ -1,19 +1,31 @@
 // gui-export.js
 import { gui } from './setup.js';
 
+// Traverse the GUI hierarchy safely
 export function extractGUIParams() {
+  if (!gui) {
+    console.warn('⚠️ GUI instance not found.');
+    return {};
+  }
+
   const result = {};
 
   function traverse(folder, store) {
     if (!folder) return;
 
+    // Extract controllers
     if (Array.isArray(folder.controllers)) {
       folder.controllers.forEach(ctrl => {
         const key = ctrl._name || ctrl.property || 'unnamed';
-        store[key] = ctrl.getValue?.();
+        try {
+          store[key] = ctrl.getValue?.();
+        } catch (err) {
+          console.warn(`⚠️ Failed to read value for ${key}`, err);
+        }
       });
     }
 
+    // Recurse into subfolders
     if (folder.folders) {
       Object.entries(folder.folders).forEach(([name, subFolder]) => {
         store[name] = {};
@@ -26,6 +38,7 @@ export function extractGUIParams() {
   return result;
 }
 
+// Save parameters to downloadable JSON
 export function saveGUIParamsToFile(filename = 'gui-params.json') {
   const data = extractGUIParams();
   const json = JSON.stringify(data, null, 2);
@@ -38,12 +51,19 @@ export function saveGUIParamsToFile(filename = 'gui-params.json') {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-  } catch {
+    console.log('✅ GUI parameters saved as JSON');
+  } catch (err) {
+    console.warn('⚠️ Blob download failed. Using fallback.', err);
     const link = document.createElement('a');
     link.href = 'data:application/json;charset=utf-8,' + encodeURIComponent(json);
     link.download = filename;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+  }
+
+  // Optional: Feedback
+  if (typeof alert === 'function') {
+    alert('✅ GUI parameters exported.');
   }
 }
