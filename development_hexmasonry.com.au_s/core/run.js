@@ -1,7 +1,7 @@
 import './build.js';
 import { loadModels } from './build.js';
 import { initCameraFocusControls } from './camera-utils.js';
-import { camera, renderer, controls } from './setup.js';
+import { camera, renderer, controls, gui } from './setup.js';
 import { renderSceneWithBloom } from './scene.js';
 import { applyGlobalLighting } from './lighting.js';
 import { saveGUIParamsToFile } from './gui-export.js'; // EXPORT GUI PARAMS
@@ -9,7 +9,7 @@ import { saveGUIParamsToFile } from './gui-export.js'; // EXPORT GUI PARAMS
 // GUI CHECK
 function updateGUIVisibility() {
   const isLoggedIn = !!document.querySelector('.is-logged-in');
-  guiContainer.style.display = isLoggedIn ? 'block' : 'none';
+  gui.style.display = isLoggedIn ? 'block' : 'none';
 }
 updateGUIVisibility();
 
