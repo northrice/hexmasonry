@@ -30,7 +30,7 @@ const configs = [
   },
   {
     name: 'EnvironmentModel',
-    url: 'code/models/hexmasonry-mockup-model.glb',
+    url: 'https://floralwhite-wasp-616415.hostingersite.com/code/models/hexmasonry-mockup-model.glb',
     sourceType: 'direct',
     type: 'environment',
     exposeGlobalName: 'envModel',
