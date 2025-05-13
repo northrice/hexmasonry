@@ -3,7 +3,9 @@ import { THREE } from './globals.js';
 
 const cameraParams = {
   fixedDistance: 2.5,
-  animationDuration: 0.5
+  animationDuration: 2.5, // Increased duration for cinematic zoom
+  minDistance: 0.1,
+  cinematicFOV: 30, // Target FOV for cinematic zoom
 };
 
 function easeInOutCubic(t) {
@@ -13,7 +15,11 @@ function easeInOutCubic(t) {
 // GUI Controls
 const focusFolder = gui.addFolder('Camera Focus');
 focusFolder.add(cameraParams, 'fixedDistance', 0.1, 10).step(0.1).name('Fixed Distance');
-focusFolder.add(cameraParams, 'animationDuration', 0.1, 2).step(0.1).name('Anim Duration');
+focusFolder.add(cameraParams, 'animationDuration', 0.1, 5).step(0.1).name('Anim Duration');
+focusFolder.add(cameraParams, 'minDistance', 0.01, 5).step(0.01).name('Min Zoom Distance').onChange((value) => {
+  controls.minDistance = value; // Dynamically update OrbitControls' minDistance
+});
+focusFolder.add(cameraParams, 'cinematicFOV', 10, 75).step(1).name('Cinematic FOV');
 focusFolder.open();
 
 export function initCameraFocusControls() {
@@ -44,17 +50,22 @@ export function initCameraFocusControls() {
 
         const startCamPos = camera.position.clone();
         const startTarget = controls.target.clone();
+        const startFOV = camera.fov;
+        const targetFOV = cameraParams.cinematicFOV;
 
         let t = 0;
         const duration = cameraParams.animationDuration;
 
         function animate() {
-          t += 0.02;
+          t += 0.01; // Smaller increment for smoother animation
           const linearAlpha = Math.min(t / duration, 1);
           const easedAlpha = easeInOutCubic(linearAlpha);
 
+          // Smoothly interpolate camera position, target, and FOV
           camera.position.lerpVectors(startCamPos, cameraTargetPosition, easedAlpha);
           controls.target.lerpVectors(startTarget, targetPosition, easedAlpha);
+          camera.fov = THREE.MathUtils.lerp(startFOV, targetFOV, easedAlpha);
+          camera.updateProjectionMatrix();
           controls.update();
 
           if (linearAlpha < 1) {
@@ -95,4 +106,7 @@ export function initCameraFocusControls() {
     controls.enablePan = true;
     controls.enableZoom = true;
   });
-} 
+
+  // Update OrbitControls' minDistance dynamically
+  controls.minDistance = cameraParams.minDistance;
+}
