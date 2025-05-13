@@ -21,9 +21,6 @@ updateGUIVisibility();
 const observer = new MutationObserver(updateGUIVisibility);
 observer.observe(document.body, { childList: true, subtree: true });
 
-// Parse the query from the current script tag, not the page URL
-const scriptUrl = new URL(import.meta.url);
-const configName = scriptUrl.searchParams.get('config');
 
 // KEYBIND TO EXPORT GUI PARAMS
 window.addEventListener('keydown', (e) => {
@@ -48,13 +45,23 @@ function hideLoadingScreen() {
   }
 }
 
+// Parse the query from the current script tag, not the page URL
+const scriptUrl = new URL(import.meta.url);
+const configName = scriptUrl.searchParams.get('config');
+
 if (!configName) {
   console.error('❌ No config specified in script src (e.g. run.js?config=home.js)');
   hideLoadingScreen();
 } else {
-  // No need to showLoadingScreen(); it's already visible
+  // Support absolute or full URLs for local configs
+  let configPath;
+  if (configName.startsWith('/') || configName.startsWith('http')) {
+    configPath = configName;
+  } else {
+    configPath = `./configs/${configName}`;
+  }
 
-  import(`./configs/${configName}`)
+  import(configPath)
     .then(module => loadModels(module.default))
     .then(() => hideLoadingScreen())
     .catch(err => {
@@ -62,6 +69,7 @@ if (!configName) {
       hideLoadingScreen();
     });
 }
+
 
 // Resize + controls
 window.addEventListener('resize', () => {
