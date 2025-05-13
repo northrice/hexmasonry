@@ -1,16 +1,15 @@
 import { THREE, OrbitControls, GUI } from './globals.js';
-import { updateCamera } from './camera-utils.js';
 
 const params = {
   modelPosX: 0,
-  modelPosY: 0,
-  modelPosZ: 3,
+  modelPosY: -0.16,
+  modelPosZ: 0,
   modelScale: 1,
   envScale: 1,
   cameraY: 0,
-  distance: 0,
-  azimuth: 45,
-  phi: 60,
+  //distance: 10,
+  //azimuth: 45,
+  //phi: 60,
   envPosX: 0,
   envPosY: 0.0,
   envPosZ: 0
@@ -18,9 +17,6 @@ const params = {
 
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0xf8f8f8);
-
-const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-camera.layers.enable(1);
 
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
@@ -32,16 +28,21 @@ renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
 document.getElementById('threejs-container').appendChild(renderer.domElement);
 
+// CAMERA
+const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+camera.layers.enable(1);
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 controls.enablePan = true;
-controls.minDistance = 3;
-controls.maxDistance = 10;
+controls.minDistance = 1;
+controls.maxDistance = 1000;
 controls.mouseButtons.RIGHT = THREE.MOUSE.PAN;
+
+
 // GUI
 const gui = new GUI();
 
-// Position top-left
+// POSITION TOP LEFT
 const guiContainer = gui.domElement;
 guiContainer.style.position = 'absolute';
 guiContainer.style.top = '30px';
@@ -49,7 +50,7 @@ guiContainer.style.left = '30px';
 guiContainer.style.zIndex = '100';
 document.body.appendChild(guiContainer);
 
-// Make draggable
+/* DRAGGABLE GUI
 let isDragging = false, offsetX = 0, offsetY = 0;
 guiContainer.addEventListener('mousedown', (e) => {
   isDragging = true;
@@ -65,7 +66,7 @@ document.addEventListener('mousemove', (e) => {
 document.addEventListener('mouseup', () => {
   isDragging = false;
   document.body.style.userSelect = '';
-});
+}); */
 
 /* SCALE GRID
 const tileSize = 1;
@@ -95,17 +96,15 @@ shadowPlane.position.y = 0;
 shadowPlane.receiveShadow = true;
 scene.add(shadowPlane);*/
 
-// Gui Options
-
+// GUI OPTIONS
 const globalFolder = gui.addFolder('Global');
-globalFolder.add(params, 'distance', 5, 100).step(1).onChange(updateCamera);
-globalFolder.add(params, 'azimuth', 0, 360).step(1).onChange(updateCamera);
 
-
+/* CAMERA GUI OPTIONS
 globalFolder.add(params, 'distance', 5, 100).step(1).onChange(updateCamera);
 globalFolder.add(params, 'azimuth', 0, 360).step(1).onChange(updateCamera);
 globalFolder.add(params, 'phi', 0, 180).step(1).onChange(updateCamera);
 globalFolder.add(params, 'cameraY', -100, 100).step(0.5).onChange(updateCamera);
+*/
 globalFolder.add(params, 'modelScale', 0.01, 10).step(0.01).onChange(() => {
   if (window.mainModel) window.mainModel.scale.setScalar(params.modelScale);
 });

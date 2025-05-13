@@ -29,7 +29,7 @@ new RGBELoader()
 const composer = new EffectComposer(renderer);
 composer.addPass(new RenderPass(scene, camera));
 
-const bloomParams = { strength: 0.45, radius: 0.65, threshold: 0.2 };
+const bloomParams = { strength: 0.0, radius: 0.65, threshold: 0.2 };
 const bloomPass = new UnrealBloomPass(
   new THREE.Vector2(window.innerWidth, window.innerHeight),
   bloomParams.strength,
@@ -69,7 +69,7 @@ composer.addPass(staticGrainPass);
 
 const bokehParams = {
   focusDistance: 15.0,
-  fStop: 1.4,
+  fStop: 22,
   focalLength: 35
 };
 

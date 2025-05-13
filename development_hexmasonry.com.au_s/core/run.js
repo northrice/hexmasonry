@@ -1,10 +1,9 @@
 // run.js
 import './build.js';
-import { updateCamera, initCameraFocusControls } from './camera-utils.js';
+import { initCameraFocusControls } from './camera-utils.js';
 import { camera, renderer, controls } from './setup.js';
 import { renderSceneWithBloom } from './scene.js';
 import { applyGlobalLighting } from './lighting.js';
-import { RectAreaLightHelper } from './globals.js';
 
 window.addEventListener('resize', () => {
   camera.aspect = window.innerWidth / window.innerHeight;
@@ -12,17 +11,17 @@ window.addEventListener('resize', () => {
   renderer.setSize(window.innerWidth, window.innerHeight);
 });
 
+// Lighting & camera init
 applyGlobalLighting();
-updateCamera();
-initCameraFocusControls(); // ← 🔥 Add this here
+initCameraFocusControls();
 
-window.updateCamera = updateCamera;
+// Debug / Dev globals (optional)
 window.camera = camera;
 
 function animate() {
   requestAnimationFrame(animate);
-  controls.update();
-  renderSceneWithBloom(); // Handles bloom + base scene render
+  controls.update();         
+  renderSceneWithBloom();     
 }
 
 animate();
