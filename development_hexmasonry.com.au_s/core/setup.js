@@ -51,7 +51,7 @@ guiContainer.style.left = '30px';
 guiContainer.style.zIndex = '100';
 document.body.appendChild(guiContainer);
 
-/* DRAGGABLE GUI
+//DRAGGABLE GUI
 let isDragging = false, offsetX = 0, offsetY = 0;
 guiContainer.addEventListener('mousedown', (e) => {
   isDragging = true;
@@ -67,7 +67,7 @@ document.addEventListener('mousemove', (e) => {
 document.addEventListener('mouseup', () => {
   isDragging = false;
   document.body.style.userSelect = '';
-}); */
+});
 
 /* SCALE GRID
 const tileSize = 1;
