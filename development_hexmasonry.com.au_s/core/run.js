@@ -9,6 +9,14 @@ import { applyGlobalLighting } from './lighting.js';
 const scriptUrl = new URL(import.meta.url);
 const configName = scriptUrl.searchParams.get('config');
 
+import { saveGUIParamsToFile } from './gui-export.js';
+
+window.addEventListener('keydown', (e) => {
+  if (e.key === 'p') {
+    saveGUIParamsToFile(); // Exports current GUI state to gui-params.json
+  }
+});
+
 if (!configName) {
   console.error('❌ No config specified in script src (e.g. run.js?config=home.js)');
 } else {
