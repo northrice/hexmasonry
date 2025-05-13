@@ -53,7 +53,7 @@ export function initControlIndicators() {
       height: 36px;
       border-radius: 50%;
       background: rgba(0,122,175,0.25);
-      transform: translate(-50%, -50%) scale(0.7);
+      transform: translate(-50%, -50%) scale(0.6);
       opacity: 0;
       pointer-events: none;
       animation: double-tap-fade 0.7s ease-out forwards;
@@ -84,7 +84,8 @@ export function initControlIndicators() {
         // Single dot trail, horizontal
         createDotTrailVector({
           container: animContainer,
-          origin: { x: 0.1, y: 0.5 },
+          //origin: { x: 0.1, y: 0.5 },
+          origin: { x: 0.1, y: -2 },
           angle: 0,
           distance: animContainer.offsetWidth * 0.8,
           duration: 1200
@@ -93,10 +94,9 @@ export function initControlIndicators() {
     },
     {
       key: 'zoom',
-      label:'',
+      label: '',
       animation: (animContainer) => {
-        // Two overlapping circles fading in/out
-        createDoubleTapAnimation(animContainer);
+        createDoubleTapAnimation(animContainer, { x: 0.5, y: -2 }); // You can change x/y here
       }
     },
     {
@@ -106,16 +106,18 @@ export function initControlIndicators() {
         // Two dots moving away from center
         createDotTrailVector({
           container: animContainer,
-          origin: { x: 0.5, y: 0.5 },
+          //origin: { x: 0.5, y: 0.5 },
+          origin: { x: 0.5, y: -2 },
           angle: 135,
-          distance: animContainer.offsetWidth * 0.35,
+          distance: animContainer.offsetWidth * 0.4,
           duration: 1200
         });
         createDotTrailVector({
           container: animContainer,
-          origin: { x: 0.5, y: 0.5 },
+          //origin: { x: 0.5, y: 0.5 },
+          origin: { x: 0.5, y: -2 },
           angle: -45,
-          distance: animContainer.offsetWidth * 0.35,
+          distance: animContainer.offsetWidth * 0.4,
           duration: 1200
         });
       }
@@ -127,14 +129,16 @@ export function initControlIndicators() {
         // Two parallel lines
         createDotTrailVector({
           container: animContainer,
-          origin: { x: 0.1, y: 0.3 },
+          //origin: { x: 0.1, y: 0.3 },
+          origin: { x: 0.1, y: -1 },
           angle: 0,
           distance: animContainer.offsetWidth * 0.8,
           duration: 1200
         });
         createDotTrailVector({
           container: animContainer,
-          origin: { x: 0.1, y: 0.7 },
+          //origin: { x: 0.1, y: 0.9 },
+          origin: { x: 0.1, y: -3 },
           angle: 0,
           distance: animContainer.offsetWidth * 0.8,
           duration: 1200
@@ -259,21 +263,29 @@ export function initControlIndicators() {
   }
 
   // 6. Double tap animation
-  function createDoubleTapAnimation(container) {
-    // First circle
+  function createDoubleTapAnimation(container, origin = { x: 0.5, y: 0.5 }) {
+    const { x, y } = origin;
+    const xPercent = x * 100;
+    const yPercent = y * 100;
+
     const circle1 = document.createElement('div');
     circle1.className = 'double-tap-circle';
+    circle1.style.left = `${xPercent}%`;
+    circle1.style.top = `${yPercent}%`;
     container.appendChild(circle1);
-    // Second circle (delayed)
+
     const circle2 = document.createElement('div');
     circle2.className = 'double-tap-circle second';
+    circle2.style.left = `${xPercent}%`;
+    circle2.style.top = `${yPercent}%`;
     container.appendChild(circle2);
-    // Remove after animation
+
     setTimeout(() => {
       if (circle1.parentNode === container) container.removeChild(circle1);
       if (circle2.parentNode === container) container.removeChild(circle2);
     }, 1200);
   }
+
 
   // 7. Tutorial logic
   let currentIndex = 0;
