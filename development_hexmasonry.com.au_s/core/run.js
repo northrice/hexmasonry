@@ -9,7 +9,7 @@ import { saveGUIParamsToFile } from './gui-export.js'; // EXPORT GUI PARAMS
 // GUI CHECK
 function updateGUIVisibility() {
   const isLoggedIn = !!document.querySelector('.is-logged-in');
-  gui.style.display = isLoggedIn ? 'block' : 'none';
+  guiContainer.style.display = isLoggedIn ? 'block' : 'none';
 }
 updateGUIVisibility();
 
