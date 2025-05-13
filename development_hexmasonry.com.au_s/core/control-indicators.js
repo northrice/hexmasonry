@@ -279,6 +279,8 @@ export function initControlIndicators() {
   let lastTap = 0;
   let pinchStartDist = 0;
 
+  let animationInterval = null;
+
   function showStep(index) {
     keys.forEach(key => {
       const el = document.getElementById(`step-${key}`);
@@ -287,10 +289,23 @@ export function initControlIndicators() {
     const currentEl = document.getElementById(`step-${keys[index]}`);
     if (currentEl) {
       currentEl.classList.add('active');
-      // Trigger the animation for this step
       const animContainer = document.getElementById(`anim-${keys[index]}`);
       animContainer.innerHTML = ''; // Clear previous
+
+      // Clear any previous interval
+      if (animationInterval) {
+        clearInterval(animationInterval);
+        animationInterval = null;
+      }
+
+      // Run the animation immediately
       gestureSteps[index].animation(animContainer);
+
+      // Repeat the animation every 1.5s (adjust if needed)
+      animationInterval = setInterval(() => {
+        animContainer.innerHTML = '';
+        gestureSteps[index].animation(animContainer);
+      }, 1500);
     }
   }
 
@@ -304,6 +319,10 @@ export function initControlIndicators() {
     if (currentIndex < keys.length) {
       showStep(currentIndex);
     } else {
+      if (animationInterval) {
+        clearInterval(animationInterval);
+        animationInterval = null;
+      }
       container.classList.add('fade-out');
       setTimeout(() => container.remove(), 1000);
     }
