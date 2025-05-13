@@ -32,10 +32,11 @@ export function loadModels(configArray) {
   const modelNames = configArray.map(cfg => cfg.name || 'Unnamed');
   console.log(`✨ Preparing to load ${totalModels} model(s): ${modelNames.join(', ')}`);
 
-  configArray.forEach((config, layerIndex) => {
+  // Collect all load promises
+  const loadPromises = configArray.map((config, layerIndex) => {
     const loadMethod = config.sourceType === 'fetch' ? loadViaFetch : loadViaDirect;
 
-    loadMethod(loader, config)
+    return loadMethod(loader, config)
       .then(gltf => {
         const model = gltf.scene;
         model.name = config.name || `Model_${layerIndex}`;
@@ -58,7 +59,6 @@ export function loadModels(configArray) {
         });
 
         scene.add(model);
-        
 
         if (config.type === 'subject') applyLightingToSubject(model);
         if (config.type === 'environment') applyEnvironmentLighting();
@@ -69,8 +69,15 @@ export function loadModels(configArray) {
 
         if (config.exposeGlobalName) window[config.exposeGlobalName] = model;
       })
-      .catch(err => console.error(`❌ Error loading model on layer ${layerIndex}`, err));
+      .catch(err => {
+        console.error(`❌ Error loading model on layer ${layerIndex}`, err);
+        // Optionally: rethrow to fail the whole batch, or just resolve to continue
+        // throw err;
+      });
   });
+
+  // Return a promise that resolves when all models are loaded
+  return Promise.all(loadPromises);
 }
 
 function loadViaFetch(loader, config) {
