@@ -232,6 +232,7 @@ export function initControlIndicators() {
             const wipeT = Math.min(wipeElapsed / wipeDuration, 1);
             const wipeEased = easeOutCubic(wipeT);
 
+            // Shrink from the tail: move left forward as width shrinks
             const remaining = distance * (1 - wipeEased);
             const offset = distance - remaining;
             trail.style.width = `${remaining}px`;
@@ -240,6 +241,8 @@ export function initControlIndicators() {
             if (wipeT < 1) {
               requestAnimationFrame(animateWipe);
             } else {
+              // After trail is gone, fade out the dot
+              dot.style.transition = 'opacity 0.3s';
               dot.style.opacity = '0';
               dot.addEventListener('transitionend', () => {
                 if (wrapper.parentNode === container) {
@@ -305,7 +308,7 @@ export function initControlIndicators() {
       animationInterval = setInterval(() => {
         animContainer.innerHTML = '';
         gestureSteps[index].animation(animContainer);
-      }, 1500);
+      }, 3000);
     }
   }
 
