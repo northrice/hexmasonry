@@ -43,7 +43,7 @@ controls.mouseButtons.RIGHT = THREE.MOUSE.PAN;
 const gui = new GUI({ closeFolders: true });
 
 // POSITION TOP LEFT
-export const guiContainer = gui.domElement;
+const guiContainer = gui.domElement;
 guiContainer.style.position = 'absolute';
 guiContainer.style.top = '30px';
 guiContainer.style.left = '30px';

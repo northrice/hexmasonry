@@ -1,7 +1,7 @@
 import './build.js';
 import { loadModels } from './build.js';
 import { initCameraFocusControls } from './camera-utils.js';
-import { camera, renderer, controls, guiContainer } from './setup.js';
+import { camera, renderer, controls, gui } from './setup.js';
 import { renderSceneWithBloom } from './scene.js';
 import { applyGlobalLighting } from './lighting.js';
 import { saveGUIParamsToFile } from './gui-export.js'; // EXPORT GUI PARAMS
@@ -9,11 +9,12 @@ import { saveGUIParamsToFile } from './gui-export.js'; // EXPORT GUI PARAMS
 // GUI CHECK
 function updateGUIVisibility() {
   const isLoggedIn = !!document.querySelector('.is-logged-in');
-  guiContainer.style.display = isLoggedIn ? 'block' : 'none';
+  const guiEl = gui.domElement;
+  if (guiEl) guiEl.style.display = isLoggedIn ? 'block' : 'none';
 }
+
 updateGUIVisibility();
 
-// Optional: observe DOM for changes in case .is-logged-in is injected late
 const observer = new MutationObserver(updateGUIVisibility);
 observer.observe(document.body, { childList: true, subtree: true });
 
