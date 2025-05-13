@@ -5,6 +5,10 @@ import { camera, renderer, controls, gui } from './setup.js';
 import { renderSceneWithBloom } from './scene.js';
 import { applyGlobalLighting } from './lighting.js';
 import { saveGUIParamsToFile } from './gui-export.js'; // EXPORT GUI PARAMS
+import { initControlIndicators } from './control-indicators.js'; // CONTROL INDICATORS
+
+// CONTROL INDICATORS
+initControlIndicators();
 
 // GUI CHECK
 function updateGUIVisibility() {

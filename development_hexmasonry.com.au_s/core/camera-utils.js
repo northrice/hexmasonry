@@ -3,10 +3,12 @@ import { THREE } from './globals.js';
 
 const cameraParams = {
   fixedDistance: 2.5,
-  animationDuration: 2.5, // Cinematic zoom duration in seconds
+  animationDuration: 1.5, // Cinematic zoom duration in seconds
   minDistance: 0.1,
   cinematicFOV: 30, // Target FOV for cinematic zoom
 };
+
+let isAnimating = false;
 
 function easeInOutCubic(t) {
   return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
@@ -27,6 +29,8 @@ export function initCameraFocusControls() {
   const mouse = new THREE.Vector2();
 
   renderer.domElement.addEventListener('dblclick', (event) => {
+    if (isAnimating) return; // Intercept user clicks during animation
+
     const rect = renderer.domElement.getBoundingClientRect();
     mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
     mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
@@ -55,6 +59,8 @@ export function initCameraFocusControls() {
         const duration = cameraParams.animationDuration * 1000;
         const startTime = performance.now();
 
+        isAnimating = true;
+
         function animate() {
           const elapsed = performance.now() - startTime;
           const linearAlpha = Math.min(elapsed / duration, 1);
@@ -68,6 +74,8 @@ export function initCameraFocusControls() {
 
           if (linearAlpha < 1) {
             requestAnimationFrame(animate);
+          } else {
+            isAnimating = false;
           }
         }
 
