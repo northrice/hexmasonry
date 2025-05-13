@@ -63,13 +63,36 @@ export function initCameraFocusControls() {
         }
 
         animate();
-
-        console.log('📌 Raycast Hit:', mesh.name);
-        console.log('→ Point:', point);
-        console.log('→ World Pos:', mesh.getWorldPosition(new THREE.Vector3()));
-
         break;
       }
     }
   });
-}
+
+  // Mobile gesture support
+  let prevTouches = [];
+  renderer.domElement.addEventListener('touchstart', (event) => {
+    prevTouches = [...event.touches];
+  }, { passive: false });
+
+  renderer.domElement.addEventListener('touchmove', (event) => {
+    if (event.touches.length === 1) {
+      // One finger = orbit
+      controls.enableRotate = true;
+      controls.enablePan = false;
+      controls.enableZoom = false;
+    } else if (event.touches.length === 2) {
+      // Two fingers = pan + zoom
+      controls.enableRotate = false;
+      controls.enablePan = true;
+      controls.enableZoom = true;
+    }
+    controls.update();
+    prevTouches = [...event.touches];
+  }, { passive: false });
+
+  renderer.domElement.addEventListener('touchend', () => {
+    controls.enableRotate = true;
+    controls.enablePan = true;
+    controls.enableZoom = true;
+  });
+} 
