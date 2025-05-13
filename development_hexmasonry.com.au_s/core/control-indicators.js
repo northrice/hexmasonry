@@ -1,4 +1,4 @@
-export function initGestureTutorialWithAnimations() {
+export function initControlIndicators() {
   // 1. Inject styles
   const style = document.createElement('style');
   style.textContent = `
