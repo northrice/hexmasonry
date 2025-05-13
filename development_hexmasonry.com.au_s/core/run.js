@@ -47,7 +47,7 @@ function hideLoadingScreen() {
 
 // Parse the query from the current script tag, not the page URL
 const scriptUrl = new URL(import.meta.url);
-const configName = scriptUrl.searchParams.get('config');
+const configName = scriptUrl.searchParams.get('config');  
 
 if (!configName) {
   console.error('❌ No config specified in script src (e.g. run.js?config=home.js)');

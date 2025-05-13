@@ -6,27 +6,16 @@ import {
 } from './globals.js';
 import { controls } from './setup.js';
 
-import { RGBELoader } from 'https://esm.sh/three@0.155.0/examples/jsm/loaders/RGBELoader.js';
-import { PMREMGenerator } from 'https://esm.sh/three@0.155.0/src/extras/PMREMGenerator.js';
+
+
 import { FilmPass } from 'https://esm.sh/three@0.155.0/examples/jsm/postprocessing/FilmPass.js';
 import { BokehPass } from 'https://esm.sh/three@0.155.0/examples/jsm/postprocessing/BokehPass.js';
 import { ShaderPass } from 'https://esm.sh/three@0.155.0/examples/jsm/postprocessing/ShaderPass.js';
 import { scene, camera, renderer, gui } from './setup.js';
 
+
+// POST PROCESSING
 let enablePostProcessing = false;
-
-const pmremGenerator = new PMREMGenerator(renderer);
-pmremGenerator.compileEquirectangularShader();
-
-new RGBELoader()
-  .setPath('scene/textures/')
-  .load('modern_bathroom_4k.hdr', (hdrEquirect) => {
-    const envMap = pmremGenerator.fromEquirectangular(hdrEquirect).texture;
-    scene.environment = envMap;
-    scene.background = new THREE.Color(0xfffff0);
-    hdrEquirect.dispose();
-    pmremGenerator.dispose();
-  });
 
 const composer = new EffectComposer(renderer);
 composer.addPass(new RenderPass(scene, camera));

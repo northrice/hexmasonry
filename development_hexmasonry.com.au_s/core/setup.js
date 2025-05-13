@@ -15,6 +15,7 @@ const params = {
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0xf8f8f8);
 
+// RENDERER - UPDATE FOR DIFFERENT SCENES
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -22,7 +23,6 @@ renderer.toneMappingExposure = 1;
 renderer.outputEncoding = THREE.sRGBEncoding;
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-
 document.getElementById('threejs-container').appendChild(renderer.domElement);
 
 // CAMERA
