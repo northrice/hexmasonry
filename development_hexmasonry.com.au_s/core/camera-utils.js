@@ -3,7 +3,7 @@ import { THREE } from './globals.js';
 
 const cameraParams = {
   fixedDistance: 2.5,
-  animationDuration: 1.5, // Increased duration for cinematic zoom
+  animationDuration: 2.5, // Increased duration for cinematic zoom
   minDistance: 0.1,
   cinematicFOV: 30, // Target FOV for cinematic zoom
 };
