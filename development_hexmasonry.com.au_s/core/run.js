@@ -4,13 +4,13 @@ import { initCameraFocusControls } from './camera-utils.js';
 import { camera, renderer, controls } from './setup.js';
 import { renderSceneWithBloom } from './scene.js';
 import { applyGlobalLighting } from './lighting.js';
+import { saveGUIParamsToFile } from './gui-export.js'; // EXPORT GUI PARAMS
 
 // Parse the query from the current script tag, not the page URL
 const scriptUrl = new URL(import.meta.url);
 const configName = scriptUrl.searchParams.get('config');
 
-import { saveGUIParamsToFile } from './gui-export.js';
-
+// KEYBIND TO EXPORT GUI PARAMS
 window.addEventListener('keydown', (e) => {
   if (e.key === 'p') {
     saveGUIParamsToFile(); // Exports current GUI state to gui-params.json
