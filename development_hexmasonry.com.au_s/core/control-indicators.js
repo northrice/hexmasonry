@@ -8,11 +8,11 @@ export function initControlIndicators() {
       left: 50%;
       transform: translateX(-50%);
       z-index: 100;
-      background: rgba(255,255,255,0.85);
+      background: transparent;
       border-radius: 12px;
       padding: 1rem 2rem;
-      font-family: sans-serif;
-      color: #333;
+      font-family: 'Open Sans', sans-serif;
+      color: #555a60;
       pointer-events: none;
       transition: opacity 1s ease;
       max-width: 90vw;
@@ -29,7 +29,7 @@ export function initControlIndicators() {
     .trail {
       position: absolute;
       height: 4px;
-      background: #aaa;
+      background: rgba(120,120,120,0.5);
       border-radius: 2px;
       top: 50%;
       transform: translateY(-50%);
@@ -38,7 +38,7 @@ export function initControlIndicators() {
       position: absolute;
       width: 14px;
       height: 14px;
-      background: #f00;
+      background: rgba(200,60,60,0.7);
       border-radius: 50%;
       top: 50%;
       left: 0;
@@ -52,7 +52,7 @@ export function initControlIndicators() {
       width: 36px;
       height: 36px;
       border-radius: 50%;
-      background: #007aff55;
+      background: rgba(0,122,175,0.25);
       transform: translate(-50%, -50%) scale(0.7);
       opacity: 0;
       pointer-events: none;
@@ -69,6 +69,7 @@ export function initControlIndicators() {
     }
   `;
   document.head.appendChild(style);
+
 
   // 2. Create tutorial container
   const container = document.createElement('div');
