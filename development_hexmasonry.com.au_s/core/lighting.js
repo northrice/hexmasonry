@@ -156,3 +156,55 @@ const debugFolder = gui.addFolder('Debug');
 debugFolder.add(debugParams, 'showHelpers').name('Show Light Helpers')
   .onChange(updateLightHelpersVisibility);
 debugFolder.open();
+
+// === DYNAMIC LIGHT CREATION ===
+export function createLight(config, target = null) {
+  let light;
+
+  switch (config.type) {
+    case 'spot':
+      light = new THREE.SpotLight(config.color, config.intensity);
+      light.position.set(config.position.x, config.position.y, config.position.z);
+      light.castShadow = !!config.castShadow;
+      if (config.targetModel && target) {
+        scene.add(light.target);
+        light.target = target;
+      }
+      break;
+
+    case 'directional':
+      light = new THREE.DirectionalLight(config.color, config.intensity);
+      light.position.set(config.position.x, config.position.y, config.position.z);
+      light.castShadow = !!config.castShadow;
+      break;
+
+    case 'point':
+      light = new THREE.PointLight(
+        config.color,
+        config.intensity,
+        config.distance || 0,
+        config.decay || 2
+      );
+      light.position.set(config.position.x, config.position.y, config.position.z);
+      break;
+
+    case 'hemisphere':
+      light = new THREE.HemisphereLight(
+        config.skyColor || 0xffffff,
+        config.groundColor || 0x444444,
+        config.intensity
+      );
+      break;
+
+    case 'ambient':
+      light = new THREE.AmbientLight(config.color, config.intensity);
+      break;
+
+    default:
+      console.warn(`⚠️ Unknown light type: ${config.type}`);
+      return;
+  }
+
+  scene.add(light);
+  return light;
+}

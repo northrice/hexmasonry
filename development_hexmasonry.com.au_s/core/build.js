@@ -1,8 +1,11 @@
+// build.js – Loads and configures 3D models from config, assigning each to a unique layer with custom settings.
+
 import { THREE, GLTFLoader } from './globals.js';
-import { scene, camera, renderer, params } from './setup.js';
+import { scene, camera, renderer } from './setup.js';
 import {
   applyLightingToSubject,
-  applyEnvironmentLighting
+  applyEnvironmentLighting,
+  createLight
 } from './lighting.js';
 
 // Helper: Ensure all geometry-only nodes are wrapped in a Mesh
@@ -14,81 +17,73 @@ function ensureMeshesFromGeometry(object, defaultMaterial = new THREE.MeshStanda
       mesh.rotation.copy(child.rotation);
       mesh.scale.copy(child.scale);
 
-      mesh.name = child.name || `GeneratedMesh_${index}`;
+      mesh.name = child.name || `GeneratedMesh_${object.name || 'Model'}_${index}`;
       child.parent.add(mesh);
       child.parent.remove(child);
     }
   });
 }
 
-// === SUBJECT MODEL ===
-const subjectModelUrl = 'https://floralwhite-wasp-616415.hostingersite.com/serve-model.php';
-const subjectLoader = new GLTFLoader();
+// LOAD MODELS
+export function loadModels(configArray) {
+  const loader = new GLTFLoader();
 
-fetch(subjectModelUrl, params)
-  .then(res => res.ok ? res.arrayBuffer() : Promise.reject("Network error"))
-  .then(buffer => subjectLoader.parseAsync(buffer, ''))
-  .then(gltf => {
-    const model = gltf.scene;
-    model.name = 'MainModel';
-    model.scale.setScalar(params.modelScale);
-    model.position.set(params.modelPosX, params.modelPosY, params.modelPosZ);
+  configArray.forEach((config, layerIndex) => {
+    const loadMethod = config.sourceType === 'fetch' ? loadViaFetch : loadViaDirect;
 
-    ensureMeshesFromGeometry(model);
+    loadMethod(loader, config)
+      .then(gltf => {
+        const model = gltf.scene;
+        model.name = config.name || `Model_${layerIndex}`;
+        model.scale.setScalar(config.scale);
+        model.position.set(
+          config.position.x,
+          config.position.y,
+          config.position.z
+        );
 
-    let index = 0;
-    model.traverse(obj => {
-      if (obj.isMesh && obj.material) {
-        obj.castShadow = true;
-        obj.receiveShadow = false;
-        obj.layers.set(0);
-        if (!obj.name) obj.name = `AutoMesh_Subject_${index++}`;
-      }
-    });
+        ensureMeshesFromGeometry(model);
 
-    scene.add(model);
-    applyLightingToSubject(model);
-    window.mainModel = model;
-    console.log('✅ Subject model loaded');
-  })
-  .catch(err => {
-    console.error('❌ Error loading subject model', err);
+        let index = 0;
+        model.traverse(obj => {
+          if (obj.isMesh && obj.material) {
+            obj.castShadow = !!config.castShadow;
+            obj.receiveShadow = !!config.receiveShadow;
+            obj.layers.set(layerIndex);
+            if (!obj.name) obj.name = `${model.name}_AutoMesh_${index++}`;
+          }
+        });
+
+        scene.add(model);
+
+        if (config.type === 'subject') applyLightingToSubject(model);
+        if (config.type === 'environment') applyEnvironmentLighting();
+
+        if (Array.isArray(config.lights)) {
+          config.lights.forEach(lightConfig => createLight(lightConfig, model));
+        }
+
+        if (config.exposeGlobalName) window[config.exposeGlobalName] = model;
+
+        console.log(`✅ ${config.name || 'Model'} loaded on layer ${layerIndex}`);
+      })
+      .catch(err => console.error(`❌ Error loading model on layer ${layerIndex}`, err));
   });
+}
 
-// === ENVIRONMENT MODEL ===
-const envModelUrl = 'scene/models/hexmasonry-mockup-model.glb';
-const envLoader = new GLTFLoader();
+function loadViaFetch(loader, config) {
+  return fetch(config.url)
+    .then(res => res.ok ? res.arrayBuffer() : Promise.reject("Network error"))
+    .then(buffer => loader.parseAsync(buffer, ''));
+}
 
-envLoader.load(
-  envModelUrl,
-  gltf => {
-    const env = gltf.scene;
-    env.name = 'EnvironmentModel';
-    env.scale.setScalar(params.envScale);
-    env.position.set(params.envPosX, params.envPosY, params.envPosZ);
+function loadViaDirect(loader, config) {
+  return new Promise((resolve, reject) => {
+    loader.load(config.url, resolve, undefined, reject);
+  });
+}
 
-    ensureMeshesFromGeometry(env);
-
-    let index = 0;
-    env.traverse(obj => {
-      if (obj.isMesh && obj.material) {
-        obj.castShadow = false;
-        obj.receiveShadow = true;
-        obj.layers.set(1);
-        if (!obj.name) obj.name = `AutoMesh_Env_${index++}`;
-      }
-    });
-
-    scene.add(env);
-    applyEnvironmentLighting();
-    window.envModel = env;
-    console.log('✅ Environment model loaded');
-  },
-  undefined,
-  err => console.error('❌ Error loading environment model', err)
-);
-
-// === Resize Handling ===
+// RESIZE HANDLING
 window.addEventListener('resize', () => {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
