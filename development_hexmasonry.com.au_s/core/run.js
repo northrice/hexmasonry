@@ -39,10 +39,11 @@ const loadingScreen = document.getElementById('loading-screen');
 function hideLoadingScreen() {
   if (loadingScreen) {
     loadingScreen.classList.remove('visible');
-    // Wait for the transition to finish before hiding completely
-    setTimeout(() => {
-      if (loadingScreen) loadingScreen.style.display = 'none';
-    }, 400); // Match the transition duration (0.4s = 400ms)
+    const onTransitionEnd = () => {
+      loadingScreen.style.display = 'none';
+      loadingScreen.removeEventListener('transitionend', onTransitionEnd);
+    };
+    loadingScreen.addEventListener('transitionend', onTransitionEnd);
   }
 }
 
