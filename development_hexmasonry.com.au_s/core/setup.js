@@ -31,6 +31,7 @@ document.getElementById('threejs-container').appendChild(renderer.domElement);
 // CAMERA
 const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
 //camera.layers.enable(1);
+camera.position.set(0, 5, 10);
 camera.layers.enableAll()
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
@@ -41,7 +42,7 @@ controls.mouseButtons.RIGHT = THREE.MOUSE.PAN;
 
 
 // GUI
-const gui = new GUI({closeFolders: true});
+const gui = new GUI({ closeFolders: true });
 
 // POSITION TOP LEFT
 const guiContainer = gui.domElement;
