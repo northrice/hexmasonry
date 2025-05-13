@@ -106,7 +106,7 @@ function applyHdriEnvironment(hdriUrl) {
       .load(hdriUrl, (hdrEquirect) => {
         const envMap = pmremGenerator.fromEquirectangular(hdrEquirect).texture;
         scene.environment = envMap;
-        scene.background = new THREE.Color(0xfffff0); // Or: scene.background = envMap;
+        scene.background = new THREE.Color(0xFFFFFF); // Or: scene.background = envMap;
         hdrEquirect.dispose();
         // pmremGenerator.dispose(); // Don't dispose if you might load more HDRIs
         resolve();

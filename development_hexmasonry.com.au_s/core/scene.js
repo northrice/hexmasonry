@@ -203,3 +203,5 @@ export {
   renderer,
   composer
 };
+
+window.scene = scene;

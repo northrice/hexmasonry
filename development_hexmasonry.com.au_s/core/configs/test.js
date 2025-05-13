@@ -6,8 +6,8 @@ const config = {
   models: [
     {
       name: 'MainModel',
-      url: 'https://floralwhite-wasp-616415.hostingersite.com/serve-model.php',
-      sourceType: 'fetch',
+      url: 'scene/models/marble_table.glb',
+      sourceType: 'direct', //fetch or direct
       type: 'subject',
       exposeGlobalName: 'mainModel',
       scale: 1,
@@ -33,7 +33,7 @@ const config = {
     },
     {
       name: 'EnvironmentModel',
-      url: './scene/models/hexmasonry-mockup-model.glb',
+      url: 'scene/models/hexmasonry-mockup-model.glb',
       //url: 'https://floralwhite-wasp-616415.hostingersite.com/code/models/hexmasonry-mockup-model.glb',
       sourceType: 'direct',
       type: 'environment',
